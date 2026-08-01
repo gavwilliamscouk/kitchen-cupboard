@@ -82,7 +82,7 @@ function AddIngredientsModal({
   const [selected, setSelected] = useState<Set<number>>(new Set(ingredients.map((_, i) => i)));
   const [loading, setLoading] = useState<"cupboard" | "list" | null>(null);
 
-  const toggle = (i) => setSelected((prev) => {
+  const toggle = (i: number) => setSelected((prev) => {
     const next = new Set(prev);
     if (next.has(i)) next.delete(i); else next.add(i);
     return next;
