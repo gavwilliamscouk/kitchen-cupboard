@@ -4,6 +4,16 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { useState } from "react";
 import { LogIn, Users } from "lucide-react";
 
+function generateHouseholdCode() {
+  // Excludes ambiguous characters: 1, l, I, 0, O
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let code = '';
+  for (let i = 0; i < 7; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 export default function AuthScreen() {
   const { signInWithGoogle, user, setHousehold } = useAuth();
   const [householdInput, setHouseholdInput] = useState("");
@@ -35,7 +45,7 @@ export default function AuthScreen() {
         
         <div className="space-y-4 pt-4">
           <button 
-            onClick={() => setHousehold(crypto.randomUUID())} 
+            onClick={() => setHousehold(generateHouseholdCode())} 
             className="btn btn-primary w-full py-3"
           >
             <Users size={20} />

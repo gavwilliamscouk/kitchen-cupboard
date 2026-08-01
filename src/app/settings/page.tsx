@@ -380,6 +380,30 @@ export default function SettingsScreen() {
         </DndContext>
       </div>
 
+      {/* Household Sharing */}
+      <div className="glass-panel p-6">
+        <h3 className="text-xl font-bold tracking-tight mb-2 text-slate-100">Household Sharing</h3>
+        <p className="text-sm text-slate-400 mb-4">
+          Share this code with your family members so they can join your household and sync recipes and shopping lists.
+        </p>
+        <div className="flex items-center gap-3">
+          <code className="flex-1 block p-3 bg-slate-900/80 border border-slate-700 rounded-xl font-mono text-sm text-yellow-400 overflow-x-auto whitespace-nowrap">
+            {householdId}
+          </code>
+          <button 
+            onClick={() => {
+              if (householdId) {
+                navigator.clipboard.writeText(householdId);
+                alert("Household Code copied to clipboard!");
+              }
+            }}
+            className="btn btn-primary px-4 py-3 rounded-xl whitespace-nowrap"
+          >
+            Copy Code
+          </button>
+        </div>
+      </div>
+
       {/* Category Modal */}
       {isCategoryModalOpen && (
         <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
