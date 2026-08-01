@@ -14,18 +14,18 @@ function SaveRecipeModal({
 }: {
   initialTitle: string;
   initialServes: number;
-  onSave: (recipe: any) => void;
+  onSave: (title: string, serves: string, type: string) => void;
   onClose: () => void;
 }) {
   const [title, setTitle] = useState(initialTitle);
-  const [serves, setServes] = useState(initialServes);
+  const [serves, setServes] = useState<number | string>(initialServes);
   const [type, setType] = useState("Main");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!title.trim()) return;
     setSaving(true);
-    await onSave(title.trim(), serves.trim(), type);
+    await onSave(title.trim(), String(serves).trim(), type);
     setSaving(false);
   };
 
@@ -68,9 +68,19 @@ function SaveRecipeModal({
 }
 
 // ── Add Ingredients modal ────────────────────────────────────────────────────
-function AddIngredientsModal({ ingredients, onAddToCupboard, onAddToShoppingList, onClose }) {
-  const [selected, setSelected] = useState(new Set(ingredients.map((_, i) => i)));
-  const [loading, setLoading] = useState(null);
+function AddIngredientsModal({
+  ingredients,
+  onAddToCupboard,
+  onAddToShoppingList,
+  onClose,
+}: {
+  ingredients: string[];
+  onAddToCupboard: (items: string[]) => Promise<void>;
+  onAddToShoppingList: (items: string[]) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<number>>(new Set(ingredients.map((_, i) => i)));
+  const [loading, setLoading] = useState<"cupboard" | "list" | null>(null);
 
   const toggle = (i) => setSelected((prev) => {
     const next = new Set(prev);
