@@ -44,6 +44,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
+    // Check for redirect results (or errors)
+    import("firebase/auth").then(({ getRedirectResult }) => {
+      getRedirectResult(auth).catch((error) => {
+        console.error("Redirect Auth Error:", error.message);
+        alert("Login Error: " + error.message);
+      });
+    });
+
     return () => unsubscribe();
   }, []);
 

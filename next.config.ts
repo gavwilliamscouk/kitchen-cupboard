@@ -14,7 +14,15 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
-  }
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/__/auth/:path*',
+        destination: 'https://gw-test-463011.firebaseapp.com/__/auth/:path*',
+      },
+    ]
+  },
 };
 
 export default withPWA(nextConfig);
