@@ -6,7 +6,17 @@ import { useInventory } from "@/lib/hooks/useInventory";
 import { useRecipeCollection, RECIPE_TYPE_ORDER } from "@/lib/hooks/useRecipeCollection";
 
 // ── Save to Collection modal ─────────────────────────────────────────────────
-function SaveRecipeModal({ initialTitle, initialServes, onSave, onClose }) {
+function SaveRecipeModal({
+  initialTitle,
+  initialServes,
+  onSave,
+  onClose,
+}: {
+  initialTitle: string;
+  initialServes: number;
+  onSave: (recipe: any) => void;
+  onClose: () => void;
+}) {
   const [title, setTitle] = useState(initialTitle);
   const [serves, setServes] = useState(initialServes);
   const [type, setType] = useState("Main");
