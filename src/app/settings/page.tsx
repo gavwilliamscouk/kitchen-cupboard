@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/lib/contexts/AuthContext";
 import Link from "next/link";
-import { List, Map, ChevronRight, Store } from "lucide-react";
+import { List, Map, ChevronRight, Store, Users } from "lucide-react";
 
 export default function SettingsScreen() {
   const { householdId, logout } = useAuth();
@@ -54,29 +54,18 @@ export default function SettingsScreen() {
         </Link>
       </div>
 
-      {/* Household Sharing */}
-      <div className="glass-panel p-6">
-        <h3 className="text-xl font-bold tracking-tight mb-2 text-slate-100">Household Sharing</h3>
-        <p className="text-sm text-slate-400 mb-4">
-          Share this code with your family members so they can join your household and sync recipes and shopping lists.
-        </p>
-        <div className="flex items-center gap-3">
-          <code className="flex-1 block p-3 bg-slate-900/80 border border-slate-700 rounded-xl font-mono text-sm text-yellow-400 overflow-x-auto whitespace-nowrap">
-            {householdId}
-          </code>
-          <button 
-            onClick={() => {
-              if (householdId) {
-                navigator.clipboard.writeText(householdId);
-                alert("Household Code copied to clipboard!");
-              }
-            }}
-            className="btn btn-primary px-4 py-3 rounded-xl whitespace-nowrap"
-          >
-            Copy Code
-          </button>
-        </div>
-      </div>
+        <Link href="/settings/household" className="glass-panel p-5 h-[88px] flex items-center justify-between group hover:bg-slate-800/80 transition-colors cursor-pointer">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center border border-yellow-500/20">
+              <Users size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold tracking-tight text-slate-100 group-hover:text-yellow-400 transition-colors">Change Household</h3>
+              <p className="text-sm text-slate-400">Manage, rename, or switch between households.</p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-slate-500 group-hover:text-yellow-400 transition-colors" />
+        </Link>
 
       {/* Logout */}
       <div className="flex justify-center pt-2">
