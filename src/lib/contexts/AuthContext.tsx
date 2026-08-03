@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut } from "firebase/auth";
+import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { auth, db } from "../firebase/config";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -44,20 +44,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    // Check for redirect results (or errors)
-    import("firebase/auth").then(({ getRedirectResult }) => {
-      getRedirectResult(auth).catch((error) => {
-        console.error("Redirect Auth Error:", error.message);
-        alert("Login Error: " + error.message);
-      });
-    });
+    // Removed redirect result check as we are using popup now
 
     return () => unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      console.error("Popup Auth Error:", error.message);
+      alert("Login Error: " + error.message);
+    }
   };
 
   const logout = async () => {

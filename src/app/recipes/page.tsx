@@ -182,7 +182,7 @@ export default function RecipesScreen() {
       const parts = ing.split(" ");
       const qty = /\d/.test(parts[0]) ? parts[0] : "";
       const rawName = /\d/.test(parts[0]) ? parts.slice(1).join(" ") : ing;
-      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorized", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: false, lastUsedDate: Date.now() });
+      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: false, lastUsedDate: Date.now() });
     }
   };
 
@@ -191,7 +191,7 @@ export default function RecipesScreen() {
       const parts = ing.split(" ");
       const qty = /\d/.test(parts[0]) ? parts[0] : "";
       const rawName = /\d/.test(parts[0]) ? parts.slice(1).join(" ") : ing;
-      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorized", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: true, lastUsedDate: Date.now() });
+      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: true, lastUsedDate: Date.now() });
     }
   };
 

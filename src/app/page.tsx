@@ -8,7 +8,7 @@ import { CategoryIcon } from "@/lib/constants/categories";
 import { useCategories } from "@/lib/contexts/CategoriesContext";
 
 function formatCategoryTitle(str: string): string {
-  if (!str) return "Uncategorized";
+  if (!str) return "Uncategorised";
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
@@ -85,7 +85,7 @@ export default function InventoryScreen() {
 
   // Group items by Category
   const groupedItems = filteredItems.reduce((acc, item) => {
-    const categoryKey = item.category || "Uncategorized";
+    const categoryKey = item.category || "Uncategorised";
     if (!acc[categoryKey]) acc[categoryKey] = [];
     acc[categoryKey].push(item);
     return acc;

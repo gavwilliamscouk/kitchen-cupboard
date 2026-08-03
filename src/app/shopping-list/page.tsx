@@ -1,7 +1,8 @@
 "use client";
 
 import { useInventory, InventoryItem } from "@/lib/hooks/useInventory";
-import { CheckCircle2, Circle, Trash2, ChevronDown } from "lucide-react";
+import { CheckCircle2, Circle, Trash2, ChevronDown, Plus } from "lucide-react";
+import AddItemModal from "@/components/AddItemModal";
 import { useState, useEffect } from "react";
 import { CategoryIcon } from "@/lib/constants/categories";
 import { useCategories } from "@/lib/contexts/CategoriesContext";
@@ -10,7 +11,7 @@ import { db } from "@/lib/firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
 
 function formatCategoryTitle(str: string): string {
-  if (!str) return "Uncategorized";
+  if (!str) return "Uncategorised";
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
@@ -33,9 +34,11 @@ function getCategoryStoreIndex(category: string, storeName: string, supermarketR
 
 export default function ShoppingListScreen() {
   const { householdId } = useAuth();
-  const { items, loading: inventoryLoading, updateItem } = useInventory();
+  const { items, loading: inventoryLoading, updateItem, addItem } = useInventory();
   const { getCategoryIndex, loading: categoriesLoading } = useCategories();
   const loading = inventoryLoading || categoriesLoading;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [sortBySupermarket, setSortBySupermarket] = useState(false);
   const [activeSupermarketFilter, setActiveSupermarketFilter] = useState("All");
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -86,7 +89,7 @@ export default function ShoppingListScreen() {
   if (sortBySupermarket) {
     supermarketGroupedData = displayedItems.reduce((acc, item) => {
       const store = item.preferredSupermarket || "Any";
-      const cat = item.category || "Uncategorized";
+      const cat = item.category || "Uncategorised";
       if (!acc[store]) acc[store] = {};
       if (!acc[store][cat]) acc[store][cat] = [];
       acc[store][cat].push(item);
@@ -94,7 +97,7 @@ export default function ShoppingListScreen() {
     }, {} as Record<string, Record<string, InventoryItem[]>>);
   } else {
     categoryGroupedData = displayedItems.reduce((acc, item) => {
-      const cat = item.category || "Uncategorized";
+      const cat = item.category || "Uncategorised";
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
       return acc;
@@ -109,7 +112,13 @@ export default function ShoppingListScreen() {
         className={`pl-2 pr-4 py-1.5 flex items-center justify-between hover:bg-slate-800/40 rounded-lg transition-all cursor-pointer bg-transparent ${
           isChecked ? "opacity-65" : "opacity-100"
         }`}
-        onClick={() => updateItem(item.id, { isChecked: !isChecked })}
+        onClick={(e) => {
+          // If clicking on the item text, open edit modal
+          // For now just toggle check like before if they click the li, but actually let's allow editing
+          // To keep it simple, we can make clicking the text edit, and clicking check toggle check.
+          // But since the whole `li` has an onClick for checking, let's keep it for checking.
+          updateItem(item.id, { isChecked: !isChecked });
+        }}
       >
         <div className="flex items-center gap-3.5">
           <button className="text-slate-400 hover:text-yellow-400 transition-colors">
@@ -160,15 +169,27 @@ export default function ShoppingListScreen() {
             </p>
           </div>
           
-          {selectedItems.length > 0 && (
-            <button
-              onClick={handleClearSelected}
-              className="btn bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0"
+          <div className="flex items-center gap-2">
+            {selectedItems.length > 0 && (
+              <button
+                onClick={handleClearSelected}
+                className="btn bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0"
+              >
+                <Trash2 size={16} />
+                <span>Clear Selected</span>
+              </button>
+            )}
+            <button 
+              className="btn bg-transparent hover:bg-yellow-500/10 text-yellow-400 hover:text-yellow-300 border border-yellow-500/80 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0" 
+              onClick={() => {
+                setEditingItem(null);
+                setIsModalOpen(true);
+              }}
             >
-              <Trash2 size={16} />
-              <span>Clear Selected</span>
+              <Plus size={16} />
+              <span>Add Item</span>
             </button>
-          )}
+          </div>
         </div>
 
         {/* Sort by Supermarket on the left below title & subtitle */}
@@ -359,6 +380,17 @@ export default function ShoppingListScreen() {
             })}
         </div>
       )}
+      <AddItemModal 
+        isOpen={isModalOpen} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingItem(null);
+        }} 
+        onAdd={addItem} 
+        itemToEdit={editingItem}
+        onUpdate={updateItem}
+        defaultInShoppingList={true}
+      />
     </div>
   );
 }

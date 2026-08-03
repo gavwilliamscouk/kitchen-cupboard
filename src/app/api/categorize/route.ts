@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     
     if (!apiKey) {
       // Fallback if no API key is provided
-      return NextResponse.json({ category: "Uncategorized" });
+      return NextResponse.json({ category: "Uncategorised" });
     }
 
     const categoriesListStr = Array.isArray(validCategories) && validCategories.length > 0 
@@ -35,15 +35,15 @@ Only output the exact category name from this list and nothing else.`;
 
     if (!response.ok) {
       console.error("Gemini API Error", await response.text());
-      return NextResponse.json({ category: "Uncategorized" });
+      return NextResponse.json({ category: "Uncategorised" });
     }
 
     const data = await response.json();
-    const category = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Uncategorized";
+    const category = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Uncategorised";
 
     return NextResponse.json({ category });
   } catch (error) {
     console.error("Error in categorize API:", error);
-    return NextResponse.json({ category: "Uncategorized" });
+    return NextResponse.json({ category: "Uncategorised" });
   }
 }

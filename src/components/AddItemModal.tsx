@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Loader2, ChevronDown, Check } from "lucide-react";
 import { InventoryItem } from "@/lib/hooks/useInventory";
 import { useCategories } from "@/lib/contexts/CategoriesContext";
+import { useSupermarkets } from "@/lib/contexts/SupermarketsContext";
 
 
 function capitalizeWords(str: string): string {
@@ -9,13 +10,23 @@ function capitalizeWords(str: string): string {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpdate }: AddItemModalProps) {
+export interface AddItemModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (item: any) => Promise<void>;
+  itemToEdit?: any;
+  onUpdate?: (id: string, updates: any) => Promise<void>;
+  defaultInShoppingList?: boolean;
+}
+
+export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpdate, defaultInShoppingList = false }: AddItemModalProps) {
   const [name, setName] = useState("");
   const [subInfo, setSubInfo] = useState("");
-  const [category, setCategory] = useState("Uncategorized");
+  const [category, setCategory] = useState("");
   const [volumeQuantity, setVolumeQuantity] = useState("");
   const [preferredSupermarket, setPreferredSupermarket] = useState("Any");
   const { categories, getCategoryEmoji } = useCategories();
+  const { supermarkets } = useSupermarkets();
   
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,13 +37,13 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     if (itemToEdit) {
       setName(itemToEdit.name || "");
       setSubInfo(itemToEdit.subInfo || "");
-      setCategory(itemToEdit.category || "Uncategorized");
+      setCategory(itemToEdit.category || "");
       setVolumeQuantity(itemToEdit.volumeQuantity || "");
       setPreferredSupermarket(itemToEdit.preferredSupermarket || "Any");
     } else {
       setName("");
       setSubInfo("");
-      setCategory("Uncategorized");
+      setCategory("");
       setVolumeQuantity("");
       setPreferredSupermarket("Any");
     }
@@ -55,7 +66,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
   );
 
   const handleNameBlur = async () => {
-    if (!name.trim() || category !== "Uncategorized" || itemToEdit) return;
+    if (!name.trim() || category !== "" || itemToEdit) return;
     
     setIsCategorizing(true);
     try {
@@ -85,7 +96,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
       await onUpdate(itemToEdit.id, {
         name: capitalizeWords(name.trim()),
         subInfo: capitalizeWords(subInfo.trim()),
-        category: capitalizeWords(category.trim()) || "Uncategorized",
+        category: capitalizeWords(category.trim()) || "Uncategorised",
         volumeQuantity: volumeQuantity.trim(),
         preferredSupermarket: capitalizeWords(preferredSupermarket.trim()) || "Any",
       });
@@ -93,10 +104,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
       await onAdd({
         name: capitalizeWords(name.trim()),
         subInfo: capitalizeWords(subInfo.trim()),
-        category: capitalizeWords(category.trim()) || "Uncategorized",
+        category: capitalizeWords(category.trim()) || "Uncategorised",
         volumeQuantity: volumeQuantity.trim(),
         preferredSupermarket: capitalizeWords(preferredSupermarket.trim()) || "Any",
-        inShoppingList: false,
+        inShoppingList: defaultInShoppingList,
         lastUsedDate: Date.now(),
       });
     }
@@ -104,7 +115,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     setIsSubmitting(false);
     setName("");
     setSubInfo("");
-    setCategory("Uncategorized");
+    setCategory("");
     setVolumeQuantity("");
     setPreferredSupermarket("Any");
     onClose();
@@ -223,7 +234,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
                 className="input" 
                 value={volumeQuantity}
                 onChange={(e) => setVolumeQuantity(e.target.value)}
-                placeholder="e.g., 500g, 12 pack"
+                placeholder="e.g. 500g, 12 pack"
               />
             </div>
             
@@ -235,13 +246,9 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
                 onChange={(e) => setPreferredSupermarket(e.target.value)}
               >
                 <option value="Any">Any</option>
-                <option value="Tesco">Tesco</option>
-                <option value="Asda">Asda</option>
-                <option value="Sainsburys">Sainsburys</option>
-                <option value="Lidl">Lidl</option>
-                <option value="Aldi">Aldi</option>
-                <option value="Co-Op">Co-Op</option>
-                <option value="Waitrose">Waitrose</option>
+                {supermarkets.map(market => (
+                  <option key={market} value={market}>{market}</option>
+                ))}
               </select>
             </div>
           </div>
