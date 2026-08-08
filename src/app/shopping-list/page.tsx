@@ -129,10 +129,10 @@ export default function ShoppingListScreen() {
             )}
           </button>
           <div>
-            <p className={`text-sm flex items-baseline gap-1.5 ${
+            <p className={`flex items-baseline gap-1.5 ${
               isChecked ? "line-through text-slate-300/90 font-normal" : "text-slate-100 font-semibold"
             }`}>
-              <span>{item.name}</span>
+              <span className="text-base sm:text-lg">{item.name}</span>
               {item.subInfo && (
                 <span className={`font-normal text-sm ${isChecked ? "text-slate-400/80 line-through" : "text-slate-300/90"}`}>
                   {item.subInfo}
@@ -169,16 +169,7 @@ export default function ShoppingListScreen() {
             </p>
           </div>
           
-          <div className="flex items-center gap-2">
-            {selectedItems.length > 0 && (
-              <button
-                onClick={handleClearSelected}
-                className="btn bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0"
-              >
-                <Trash2 size={16} />
-                <span>Clear Selected</span>
-              </button>
-            )}
+          <div className="flex flex-col items-end gap-2">
             <button 
               className="btn bg-transparent hover:bg-yellow-500/10 text-yellow-400 hover:text-yellow-300 border border-yellow-500/80 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0" 
               onClick={() => {
@@ -188,6 +179,18 @@ export default function ShoppingListScreen() {
             >
               <Plus size={16} />
               <span>Add Item</span>
+            </button>
+            <button
+              onClick={handleClearSelected}
+              disabled={selectedItems.length === 0}
+              className={`btn rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0 ${
+                selectedItems.length > 0 
+                  ? "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30" 
+                  : "bg-slate-800/40 text-slate-500 border border-slate-700/30 cursor-not-allowed opacity-50"
+              }`}
+            >
+              <Trash2 size={16} />
+              <span>Clear Selected</span>
             </button>
           </div>
         </div>

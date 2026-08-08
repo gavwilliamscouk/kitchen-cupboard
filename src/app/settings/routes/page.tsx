@@ -240,7 +240,7 @@ export default function RoutesSettingsScreen() {
             strategy={verticalListSortingStrategy}
           >
             {/* Removed max-h and overflow-y-auto so the list extends fully */}
-            <div className="w-full max-w-lg mx-auto space-y-2 rounded-xl">
+            <div className="w-full space-y-2 rounded-xl">
               {currentRoute.map((department, index) => (
                 <SortableRouteItem key={department} id={department} index={index} />
               ))}

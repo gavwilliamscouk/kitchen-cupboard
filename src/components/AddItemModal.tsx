@@ -37,7 +37,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     if (itemToEdit) {
       setName(itemToEdit.name || "");
       setSubInfo(itemToEdit.subInfo || "");
-      setCategory(itemToEdit.category || "");
+      setCategory(itemToEdit.category === "Uncategorised" ? "" : (itemToEdit.category || ""));
       setVolumeQuantity(itemToEdit.volumeQuantity || "");
       setPreferredSupermarket(itemToEdit.preferredSupermarket || "Any");
     } else {
@@ -77,7 +77,8 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
       });
       if (res.ok) {
         const data = await res.json();
-        setCategory(capitalizeWords(data.category));
+        const returnedCategory = capitalizeWords(data.category);
+        setCategory(returnedCategory === "Uncategorised" ? "" : returnedCategory);
       }
     } catch (e) {
       console.error(e);

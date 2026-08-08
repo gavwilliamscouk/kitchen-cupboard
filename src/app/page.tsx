@@ -126,7 +126,7 @@ export default function InventoryScreen() {
           )}
           <input 
             type="text" 
-            className={`input py-2 rounded-xl shadow-sm text-sm w-full transition-all ${
+            className={`input border-transparent py-2 rounded-xl shadow-sm text-sm w-full transition-all ${
               searchQuery ? "px-4" : "pl-11 pr-4"
             }`}
             value={searchQuery}
@@ -135,7 +135,7 @@ export default function InventoryScreen() {
         </div>
         <div className="flex-1 min-w-0">
           <select 
-            className="input w-full rounded-xl shadow-sm text-xs sm:text-sm py-2 pl-3.5 pr-8 sm:pr-10 cursor-pointer truncate"
+            className="input border-transparent w-full rounded-xl shadow-sm text-xs sm:text-sm py-2 pl-3.5 pr-8 sm:pr-10 cursor-pointer truncate"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
