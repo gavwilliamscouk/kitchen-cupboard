@@ -40,11 +40,11 @@ export function useRecipeCollection() {
       snapshot.forEach((d) => {
         data.push({ id: d.id, ...d.data() } as SavedRecipe);
       });
-      // Sort by type order then by savedAt descending within each type
+      // Sort by type order then alphabetically by title within each type
       data.sort((a, b) => {
         const typeSort = RECIPE_TYPE_ORDER.indexOf(a.type) - RECIPE_TYPE_ORDER.indexOf(b.type);
         if (typeSort !== 0) return typeSort;
-        return b.savedAt - a.savedAt;
+        return a.title.localeCompare(b.title);
       });
       setSavedRecipes(data);
       setLoading(false);
