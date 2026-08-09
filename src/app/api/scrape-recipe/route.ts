@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 
+function toTitleCase(str: string): string {
+  if (!str) return str;
+  const minorWords = new Set(["and", "but", "for", "or", "nor", "the", "a", "an", "to", "in", "with", "of", "on", "at", "by", "from", "as", "is"]);
+  return str.toLowerCase().split(/\s+/).map((word, index) => {
+    if (index === 0 || !minorWords.has(word)) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    return word;
+  }).join(' ');
+}
+
 export async function POST(req: Request) {
   try {
     const { url } = await req.json();
@@ -89,7 +100,7 @@ export async function POST(req: Request) {
     ingredients = ingredients.map(i => i.replace(/\s+/g, ' ').trim()).filter(Boolean);
     
     return NextResponse.json({
-      title: title || "Imported Recipe",
+      title: title ? toTitleCase(title) : "Imported Recipe",
       serves,
       ingredients,
       method: method || "Could not parse method instructions from this page.",
