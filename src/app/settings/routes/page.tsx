@@ -161,7 +161,7 @@ export default function RoutesSettingsScreen() {
                 onClick={() => setSelectedSupermarket(market)}
                 className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 border ${
                   isSelected
-                    ? "bg-yellow-500 text-slate-950 font-bold border-yellow-500 shadow-md scale-[1.02] shadow-yellow-500/20"
+                    ? "bg-yellow-500 text-slate-950 font-bold border-yellow-500 shadow-md scale-[1.02]"
                     : "bg-slate-800/80 text-slate-200 border-slate-700/60 hover:bg-slate-700/80"
                 }`}
               >

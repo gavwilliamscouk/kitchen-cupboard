@@ -217,7 +217,7 @@ export default function ShoppingListScreen() {
             onClick={() => setActiveSupermarketFilter("All")}
             className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all shadow-sm ${
               activeSupermarketFilter === "All" 
-                ? "bg-yellow-500 text-slate-950 font-semibold shadow-md shadow-yellow-500/20" 
+                ? "bg-yellow-500 text-slate-950 font-semibold shadow-md" 
                 : "bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/50"
             }`}
           >
@@ -229,7 +229,7 @@ export default function ShoppingListScreen() {
               onClick={() => setActiveSupermarketFilter(store)}
               className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all shadow-sm ${
                 activeSupermarketFilter === store 
-                  ? "bg-yellow-500 text-slate-950 font-semibold shadow-md shadow-yellow-500/20" 
+                  ? "bg-yellow-500 text-slate-950 font-semibold shadow-md" 
                   : "bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/50"
               }`}
             >
