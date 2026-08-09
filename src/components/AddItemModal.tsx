@@ -205,6 +205,9 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
                         onClick={() => {
                           setCategory(dept);
                           setIsDropdownOpen(false);
+                          if (document.activeElement instanceof HTMLElement) {
+                            document.activeElement.blur();
+                          }
                         }}
                         className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${
                           isSelected
