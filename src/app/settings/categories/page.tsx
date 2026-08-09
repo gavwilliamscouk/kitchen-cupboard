@@ -2,24 +2,7 @@
 
 import { useState } from "react";
 import { useCategories, Category } from "@/lib/contexts/CategoriesContext";
-import { 
-  DndContext, 
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from "@dnd-kit/core";
-import { 
-  arrayMove, 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy,
-  useSortable
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Plus, X, Edit2, Trash2, ArrowLeft } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, X, Edit2, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/firebase/config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -40,24 +23,9 @@ const POPULAR_EMOJIS = [
   "💡", "🏷️"
 ];
 
-function SortableCategoryItem({ category, index, onClick }: { category: Category; index: number; onClick: () => void }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: category.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
+function CategoryItem({ category, index, total, onMoveUp, onMoveDown, onClick }: { category: Category; index: number; total: number; onMoveUp: (e: React.MouseEvent) => void; onMoveDown: (e: React.MouseEvent) => void; onClick: () => void }) {
   return (
     <div 
-      ref={setNodeRef} 
-      style={style} 
       onClick={onClick}
       className="flex items-center justify-between p-3.5 bg-slate-800/80 border border-slate-700/60 rounded-xl shadow-sm hover:shadow-md hover:bg-slate-700/60 transition-all cursor-pointer group"
     >
@@ -67,18 +35,24 @@ function SortableCategoryItem({ category, index, onClick }: { category: Category
         </span>
         <span className="font-medium text-[15px] text-slate-200">{category.name}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <div className="p-1.5 rounded-lg text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
           <Edit2 size={16} />
         </div>
-        <div 
-          {...attributes} 
-          {...listeners} 
-          onClick={(e) => e.stopPropagation()} 
-          className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
+        <button 
+          onClick={onMoveUp}
+          disabled={index === 0}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
         >
-          <GripVertical size={18} />
-        </div>
+          <ArrowUp size={18} />
+        </button>
+        <button 
+          onClick={onMoveDown}
+          disabled={index === total - 1}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+        >
+          <ArrowDown size={18} />
+        </button>
       </div>
     </div>
   );
@@ -95,19 +69,18 @@ export default function CategoriesSettingsScreen() {
   const [catEmoji, setCatEmoji] = useState("");
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
 
-  const handleCategoriesDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = categories.findIndex(c => c.id === active.id);
-      const newIndex = categories.findIndex(c => c.id === over.id);
-      const updatedList = arrayMove(categories, oldIndex, newIndex);
-      await setCategories(updatedList);
-    }
+
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= categories.length) return;
+    
+    const updatedList = [...categories];
+    const temp = updatedList[index];
+    updatedList[index] = updatedList[newIndex];
+    updatedList[newIndex] = temp;
+    
+    await setCategories(updatedList);
   };
 
   const openCategoryModal = (cat?: Category) => {
@@ -203,28 +176,25 @@ export default function CategoriesSettingsScreen() {
           </button>
         </div>
 
-        <DndContext 
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleCategoriesDragEnd}
-        >
-          <SortableContext 
-            items={categories.map(c => c.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {/* Removed max-h and overflow-y-auto so the list extends fully */}
-            <div className="w-full max-w-lg mx-auto space-y-2 rounded-xl">
-              {categories.map((cat, index) => (
-                <SortableCategoryItem 
-                  key={cat.id} 
-                  category={cat} 
-                  index={index} 
-                  onClick={() => openCategoryModal(cat)}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <div className="w-full max-w-lg mx-auto space-y-2 rounded-xl">
+          {categories.map((cat, index) => (
+            <CategoryItem 
+              key={cat.id} 
+              category={cat} 
+              index={index} 
+              total={categories.length}
+              onMoveUp={(e) => {
+                e.stopPropagation();
+                handleMove(index, 'up');
+              }}
+              onMoveDown={(e) => {
+                e.stopPropagation();
+                handleMove(index, 'down');
+              }}
+              onClick={() => openCategoryModal(cat)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Category Modal */}

@@ -6,56 +6,35 @@ import { db } from "@/lib/firebase/config";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useCategories } from "@/lib/contexts/CategoriesContext";
 import { useSupermarkets } from "@/lib/contexts/SupermarketsContext";
-import { 
-  DndContext, 
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from "@dnd-kit/core";
-import { 
-  arrayMove, 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy,
-  useSortable
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Save, Loader2, RotateCcw, Store, ArrowLeft } from "lucide-react";
+import { ArrowUp, ArrowDown, Save, Loader2, RotateCcw, Store, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 
 
-function SortableRouteItem({ id, index }: { id: string; index: number }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
+function RouteItem({ id, index, total, onMoveUp, onMoveDown }: { id: string; index: number; total: number; onMoveUp: () => void; onMoveDown: () => void }) {
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      className="flex items-center justify-between p-3.5 bg-slate-800/80 border border-slate-700/60 rounded-xl shadow-sm hover:shadow-md transition-all"
-    >
+    <div className="flex items-center justify-between p-3.5 bg-slate-800/80 border border-slate-700/60 rounded-xl shadow-sm hover:shadow-md transition-all">
       <div className="flex items-center gap-3">
         <span className="w-6 h-6 flex items-center justify-center rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold border border-yellow-500/30">
           {index + 1}
         </span>
         <span className="font-medium text-[15px] text-slate-200">{id}</span>
       </div>
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors">
-        <GripVertical size={18} />
+      <div className="flex items-center gap-1">
+        <button 
+          onClick={onMoveUp}
+          disabled={index === 0}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+        >
+          <ArrowUp size={18} />
+        </button>
+        <button 
+          onClick={onMoveDown}
+          disabled={index === total - 1}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+        >
+          <ArrowDown size={18} />
+        </button>
       </div>
     </div>
   );
@@ -71,10 +50,7 @@ export default function RoutesSettingsScreen() {
   const [isSavingRoute, setIsSavingRoute] = useState(false);
   const [isLoadingRoutes, setIsLoadingRoutes] = useState(true);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
+
 
   useEffect(() => {
     async function loadSettings() {
@@ -108,18 +84,19 @@ export default function RoutesSettingsScreen() {
     if (!currentRoute.includes(name)) currentRoute.push(name);
   });
 
-  const handleRouteDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = currentRoute.indexOf(active.id as string);
-      const newIndex = currentRoute.indexOf(over.id as string);
-      const updatedList = arrayMove(currentRoute, oldIndex, newIndex);
-
-      setSupermarketRoutes(prev => ({
-        ...prev,
-        [selectedSupermarket]: updatedList
-      }));
-    }
+  const handleMove = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= currentRoute.length) return;
+    
+    const updatedList = [...currentRoute];
+    const temp = updatedList[index];
+    updatedList[index] = updatedList[newIndex];
+    updatedList[newIndex] = temp;
+    
+    setSupermarketRoutes(prev => ({
+      ...prev,
+      [selectedSupermarket]: updatedList
+    }));
   };
 
   const handleResetRoute = () => {
@@ -230,23 +207,18 @@ export default function RoutesSettingsScreen() {
           </div>
         </div>
 
-        <DndContext 
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleRouteDragEnd}
-        >
-          <SortableContext 
-            items={currentRoute}
-            strategy={verticalListSortingStrategy}
-          >
-            {/* Removed max-h and overflow-y-auto so the list extends fully */}
-            <div className="w-full space-y-2 rounded-xl">
-              {currentRoute.map((department, index) => (
-                <SortableRouteItem key={department} id={department} index={index} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <div className="w-full space-y-2 rounded-xl">
+          {currentRoute.map((department, index) => (
+            <RouteItem 
+              key={department} 
+              id={department} 
+              index={index} 
+              total={currentRoute.length}
+              onMoveUp={() => handleMove(index, 'up')}
+              onMoveDown={() => handleMove(index, 'down')}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

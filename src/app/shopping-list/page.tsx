@@ -22,7 +22,7 @@ function formatStoreName(str: string): string {
   return norm.charAt(0).toUpperCase() + norm.slice(1).toLowerCase();
 }
 
-function getCategoryStoreIndex(category: string, storeName: string, supermarketRoutes: Record<string, string[]>): number {
+function getCategoryStoreIndex(category: string, storeName: string, supermarketRoutes: Record<string, string[]>, getCategoryIndex: (cat: string) => number): number {
   const storeRoute = supermarketRoutes[storeName];
   if (storeRoute && Array.isArray(storeRoute)) {
     const normCat = category.toLowerCase().trim();
@@ -334,7 +334,7 @@ export default function ShoppingListScreen() {
                   {!isStoreCollapsed && (
                     <div className="space-y-0">
                       {Object.entries(categoriesMap)
-                        .sort(([catA], [catB]) => getCategoryStoreIndex(catA, storeName, supermarketRoutes) - getCategoryStoreIndex(catB, storeName, supermarketRoutes))
+                        .sort(([catA], [catB]) => getCategoryStoreIndex(catA, storeName, supermarketRoutes, getCategoryIndex) - getCategoryStoreIndex(catB, storeName, supermarketRoutes, getCategoryIndex))
                         .map(([category, categoryItems]) => {
                           const collapseKey = `${storeName}-${category}`;
                           const isCollapsed = !!collapsedGroups[collapseKey];

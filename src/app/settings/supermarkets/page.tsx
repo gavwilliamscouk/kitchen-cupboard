@@ -2,48 +2,15 @@
 
 import { useState } from "react";
 import { useSupermarkets } from "@/lib/contexts/SupermarketsContext";
-import { 
-  DndContext, 
-  closestCenter,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from "@dnd-kit/core";
-import { 
-  arrayMove, 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy,
-  useSortable
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Plus, X, Edit2, Trash2, ArrowLeft, Store } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, X, Edit2, Trash2, ArrowLeft, Store } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/firebase/config";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/contexts/AuthContext";
 
-function SortableSupermarketItem({ market, index, onClick }: { market: string; index: number; onClick: () => void }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: market });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
+function SupermarketItem({ market, index, total, onMoveUp, onMoveDown, onClick }: { market: string; index: number; total: number; onMoveUp: (e: React.MouseEvent) => void; onMoveDown: (e: React.MouseEvent) => void; onClick: () => void }) {
   return (
     <div 
-      ref={setNodeRef} 
-      style={style} 
       onClick={onClick}
       className="flex items-center justify-between p-3.5 bg-slate-800/80 border border-slate-700/60 rounded-xl shadow-sm hover:shadow-md hover:bg-slate-700/60 transition-all cursor-pointer group"
     >
@@ -53,18 +20,24 @@ function SortableSupermarketItem({ market, index, onClick }: { market: string; i
         </span>
         <span className="font-medium text-[15px] text-slate-200">{market}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <div className="p-1.5 rounded-lg text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
           <Edit2 size={16} />
         </div>
-        <div 
-          {...attributes} 
-          {...listeners} 
-          onClick={(e) => e.stopPropagation()} 
-          className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors touch-none"
+        <button 
+          onClick={onMoveUp}
+          disabled={index === 0}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
         >
-          <GripVertical size={18} />
-        </div>
+          <ArrowUp size={18} />
+        </button>
+        <button 
+          onClick={onMoveDown}
+          disabled={index === total - 1}
+          className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+        >
+          <ArrowDown size={18} />
+        </button>
       </div>
     </div>
   );
@@ -79,20 +52,18 @@ export default function SupermarketsSettingsScreen() {
   const [editingSupermarket, setEditingSupermarket] = useState<string | null>(null);
   const [marketName, setMarketName] = useState("");
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = supermarkets.indexOf(active.id as string);
-      const newIndex = supermarkets.indexOf(over.id as string);
-      const updatedList = arrayMove(supermarkets, oldIndex, newIndex);
-      await setSupermarkets(updatedList);
-    }
+
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= supermarkets.length) return;
+    
+    const updatedList = [...supermarkets];
+    const temp = updatedList[index];
+    updatedList[index] = updatedList[newIndex];
+    updatedList[newIndex] = temp;
+    
+    await setSupermarkets(updatedList);
   };
 
   const openModal = (market?: string) => {
@@ -187,27 +158,25 @@ export default function SupermarketsSettingsScreen() {
           </button>
         </div>
 
-        <DndContext 
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext 
-            items={supermarkets}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="w-full max-w-lg mx-auto space-y-2 rounded-xl">
-              {supermarkets.map((market, index) => (
-                <SortableSupermarketItem 
-                  key={market} 
-                  market={market} 
-                  index={index} 
-                  onClick={() => openModal(market)}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <div className="w-full max-w-lg mx-auto space-y-2 rounded-xl">
+          {supermarkets.map((market, index) => (
+            <SupermarketItem 
+              key={market} 
+              market={market} 
+              index={index} 
+              total={supermarkets.length}
+              onMoveUp={(e) => {
+                e.stopPropagation();
+                handleMove(index, 'up');
+              }}
+              onMoveDown={(e) => {
+                e.stopPropagation();
+                handleMove(index, 'down');
+              }}
+              onClick={() => openModal(market)}
+            />
+          ))}
+        </div>
       </div>
 
       {isModalOpen && (
