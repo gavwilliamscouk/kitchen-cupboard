@@ -98,6 +98,7 @@ export async function POST(req: Request) {
 
     // Basic cleaning
     ingredients = ingredients.map(i => i.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    serves = serves.replace(/serves|servings?|portions?|people|yields?:?/ig, '').trim();
     
     return NextResponse.json({
       title: title ? toTitleCase(title) : "Imported Recipe",
