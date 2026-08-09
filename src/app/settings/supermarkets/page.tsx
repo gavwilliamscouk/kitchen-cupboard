@@ -6,7 +6,8 @@ import {
   DndContext, 
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent
@@ -60,7 +61,7 @@ function SortableSupermarketItem({ market, index, onClick }: { market: string; i
           {...attributes} 
           {...listeners} 
           onClick={(e) => e.stopPropagation()} 
-          className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
+          className="cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors touch-none"
         >
           <GripVertical size={18} />
         </div>
@@ -79,7 +80,8 @@ export default function SupermarketsSettingsScreen() {
   const [marketName, setMarketName] = useState("");
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 

@@ -109,7 +109,7 @@ export default function ShoppingListScreen() {
     return (
       <li 
         key={item.id} 
-        className={`pl-2 pr-4 py-1.5 flex items-center justify-between hover:bg-slate-800/40 rounded-lg transition-all cursor-pointer bg-transparent ${
+        className={`pl-2 pr-4 py-2.5 flex items-center justify-between hover:bg-slate-800/40 rounded-lg transition-all cursor-pointer bg-transparent ${
           isChecked ? "opacity-65" : "opacity-100"
         }`}
         onClick={(e) => {
@@ -132,7 +132,7 @@ export default function ShoppingListScreen() {
             <p className={`flex items-baseline gap-1.5 ${
               isChecked ? "line-through text-slate-300/90 font-normal" : "text-slate-100 font-semibold"
             }`}>
-              <span className="text-base sm:text-lg">{item.name}</span>
+              <span className="text-lg sm:text-xl">{item.name}</span>
               {item.subInfo && (
                 <span className={`font-normal text-sm ${isChecked ? "text-slate-400/80 line-through" : "text-slate-300/90"}`}>
                   {item.subInfo}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, BookOpen, Circle, CheckCircle2, BookmarkPlus, ShoppingCart, X, ListPlus, ArrowLeft } from "lucide-react";
+import { Loader2, BookOpen, Circle, CheckCircle2, BookmarkPlus, ShoppingCart, X, ListPlus, ArrowLeft, Pencil } from "lucide-react";
 import { useInventory } from "@/lib/hooks/useInventory";
 import { useRecipeCollection, RECIPE_TYPE_ORDER } from "@/lib/hooks/useRecipeCollection";
 
@@ -138,10 +138,72 @@ function AddIngredientsModal({
   );
 }
 
+// ── Edit Recipe modal ────────────────────────────────────────────────────────
+function EditRecipeModal({
+  recipe,
+  onSave,
+  onClose,
+}: {
+  recipe: any;
+  onSave: (updated: any) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [title, setTitle] = useState(recipe.title || "");
+  const [serves, setServes] = useState(recipe.serves || "");
+  const [ingredients, setIngredients] = useState(recipe.ingredients.join("\n"));
+  const [method, setMethod] = useState(recipe.method || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!title.trim()) return;
+    setSaving(true);
+    await onSave({
+      ...recipe,
+      title: title.trim(),
+      serves: String(serves).trim(),
+      ingredients: ingredients.split("\n").map(i => i.trim()).filter(Boolean),
+      method: method.trim(),
+    });
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
+      <div className="bg-slate-900 border border-slate-700/60 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-5 overflow-y-auto" style={{maxHeight: 'calc(100dvh - 8rem)'}}>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-100">Edit Recipe</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-200 transition-colors"><X size={20} /></button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Recipe Name</label>
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="input w-full rounded-xl" placeholder="Recipe name..." />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Servings</label>
+            <input type="text" value={serves} onChange={(e) => setServes(e.target.value)} className="input w-full rounded-xl" placeholder="e.g. 4" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ingredients (one per line)</label>
+            <textarea value={ingredients} onChange={(e) => setIngredients(e.target.value)} className="input w-full rounded-xl min-h-[120px]" placeholder="Ingredients..." />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Method</label>
+            <textarea value={method} onChange={(e) => setMethod(e.target.value)} className="input w-full rounded-xl min-h-[160px]" placeholder="Method..." />
+          </div>
+        </div>
+        <button onClick={handleSave} disabled={saving || !title.trim()} className="btn btn-primary w-full py-3 rounded-xl">
+          {saving ? <Loader2 className="animate-spin" size={18} /> : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function RecipesScreen() {
-  const { addItem } = useInventory();
-  const { savedRecipes, saveRecipe } = useRecipeCollection();
+  const { items, addItem, updateItem } = useInventory();
+  const { savedRecipes, saveRecipe, updateRecipe } = useRecipeCollection();
   const [recipeUrl, setRecipeUrl] = useState("");
   const [isScraping, setIsScraping] = useState(false);
   const [recipe, setRecipe] = useState(null);
@@ -149,6 +211,7 @@ export default function RecipesScreen() {
   const [checkedIngredients, setCheckedIngredients] = useState(new Set());
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const handleImport = async (e) => {
     e.preventDefault();
@@ -182,7 +245,12 @@ export default function RecipesScreen() {
       const parts = ing.split(" ");
       const qty = /\d/.test(parts[0]) ? parts[0] : "";
       const rawName = /\d/.test(parts[0]) ? parts.slice(1).join(" ") : ing;
-      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: false, lastUsedDate: Date.now() });
+      const parsedName = capitalizeWords(rawName.trim());
+      
+      const existingItem = items.find(i => i.name.toLowerCase() === parsedName.toLowerCase());
+      if (existingItem) continue;
+
+      await addItem({ name: parsedName, category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: false, lastUsedDate: Date.now() });
     }
   };
 
@@ -191,7 +259,16 @@ export default function RecipesScreen() {
       const parts = ing.split(" ");
       const qty = /\d/.test(parts[0]) ? parts[0] : "";
       const rawName = /\d/.test(parts[0]) ? parts.slice(1).join(" ") : ing;
-      await addItem({ name: capitalizeWords(rawName.trim()), category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: true, lastUsedDate: Date.now() });
+      const parsedName = capitalizeWords(rawName.trim());
+      
+      const existingItem = items.find(i => i.name.toLowerCase() === parsedName.toLowerCase());
+      if (existingItem) {
+        if (!existingItem.inShoppingList) {
+          await updateItem(existingItem.id, { inShoppingList: true, lastAddedToShoppingList: Date.now() });
+        }
+      } else {
+        await addItem({ name: parsedName, category: "Uncategorised", volumeQuantity: qty, preferredSupermarket: "Any", inShoppingList: true, lastUsedDate: Date.now() });
+      }
     }
   };
 
@@ -199,6 +276,19 @@ export default function RecipesScreen() {
     if (!recipe) return;
     await saveRecipe({ title, serves, type, ingredients: recipe.ingredients, method: recipe.method, sourceUrl: recipe.sourceUrl });
     setShowSaveModal(false);
+  };
+
+  const handleEditRecipe = async (updatedRecipe) => {
+    if (updatedRecipe.id) {
+      await updateRecipe(updatedRecipe.id, {
+        title: updatedRecipe.title,
+        serves: updatedRecipe.serves,
+        ingredients: updatedRecipe.ingredients,
+        method: updatedRecipe.method,
+      });
+    }
+    setRecipe(updatedRecipe);
+    setShowEditModal(false);
   };
 
   return (
@@ -237,11 +327,13 @@ export default function RecipesScreen() {
                             <li key={r.id} 
                                 onClick={() => {
                                   setRecipe({
+                                    id: r.id,
                                     title: r.title,
                                     serves: r.serves,
                                     ingredients: r.ingredients,
                                     method: r.method,
-                                    sourceUrl: r.sourceUrl
+                                    sourceUrl: r.sourceUrl,
+                                    type: r.type
                                   });
                                   setActiveTab("ingredients");
                                 }}
@@ -276,11 +368,18 @@ export default function RecipesScreen() {
                 {recipe.serves && <p className="text-sm font-medium text-slate-400 mb-2">Serves {recipe.serves}</p>}
                 <a href={recipe.sourceUrl} target="_blank" rel="noreferrer" className="text-sm font-normal text-yellow-400/60 hover:text-yellow-300/80 transition-colors">View original source &#8599;</a>
               </div>
-              <button onClick={() => { setRecipe(null); setCheckedIngredients(new Set()); }}
-                className="btn flex items-center gap-1.5 rounded-full px-3 py-2 text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60 transition-all">
-                <ArrowLeft size={16} />
-                <span className="font-medium">Back</span>
-              </button>
+              <div className="flex flex-col gap-2 items-end">
+                <button onClick={() => { setRecipe(null); setCheckedIngredients(new Set()); }}
+                  className="btn flex justify-center items-center gap-1.5 rounded-full px-4 py-2 text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60 transition-all w-full">
+                  <ArrowLeft size={16} />
+                  <span className="font-medium">Back</span>
+                </button>
+                <button onClick={() => setShowEditModal(true)}
+                  className="btn flex justify-center items-center gap-1.5 rounded-full px-4 py-2 text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60 transition-all w-full">
+                  <Pencil size={16} />
+                  <span className="font-medium">Edit</span>
+                </button>
+              </div>
             </div>
 
             <div className="flex px-6 sm:px-8 border-b border-slate-800 shrink-0">
@@ -352,6 +451,13 @@ export default function RecipesScreen() {
           onAddToCupboard={addIngredientsToCupboard}
           onAddToShoppingList={addIngredientsToShoppingList}
           onClose={() => setShowAddModal(false)}
+        />
+      )}
+      {showEditModal && recipe && (
+        <EditRecipeModal
+          recipe={recipe}
+          onSave={handleEditRecipe}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </>

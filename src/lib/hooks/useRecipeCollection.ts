@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -65,9 +65,15 @@ export function useRecipeCollection() {
     });
   };
 
+  const updateRecipe = async (id: string, data: Partial<Omit<SavedRecipe, "id">>) => {
+    if (!householdId) return;
+    const docRef = doc(db, "recipes", id);
+    await updateDoc(docRef, data);
+  };
+
   const deleteRecipe = async (id: string) => {
     await deleteDoc(doc(db, "recipes", id));
   };
 
-  return { savedRecipes, loading, saveRecipe, deleteRecipe };
+  return { savedRecipes, loading, saveRecipe, updateRecipe, deleteRecipe };
 }
