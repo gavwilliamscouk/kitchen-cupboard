@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, BookOpen, Circle, CheckCircle2, BookmarkPlus, ShoppingCart, X, ListPlus, ArrowLeft, Pencil } from "lucide-react";
+import { Loader2, BookOpen, Circle, CheckCircle2, BookmarkPlus, ShoppingCart, X, ListPlus, ArrowLeft, Pencil, Plus } from "lucide-react";
 import { useInventory } from "@/lib/hooks/useInventory";
 import { useRecipeCollection, RECIPE_TYPE_ORDER } from "@/lib/hooks/useRecipeCollection";
 
@@ -173,7 +173,7 @@ function EditRecipeModal({
     <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-700/60 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-5 overflow-y-auto" style={{maxHeight: 'calc(100dvh - 8rem)'}}>
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-100">Edit Recipe</h3>
+          <h3 className="text-lg font-bold text-slate-100">{recipe.id ? "Edit Recipe" : "Add Recipe"}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-200 transition-colors"><X size={20} /></button>
         </div>
         <div className="space-y-4">
@@ -227,6 +227,7 @@ export default function RecipesScreen() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleImport = async (e) => {
     e.preventDefault();
@@ -312,6 +313,11 @@ export default function RecipesScreen() {
       <div className="flex flex-col h-full space-y-8">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold tracking-tight text-slate-100">Recipes</h2>
+          <button onClick={() => setShowCreateModal(true)}
+            className="btn bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60 rounded-full px-4 py-2 text-sm flex items-center gap-1.5 transition-all">
+            <Plus size={16} />
+            <span className="font-medium">Recipe</span>
+          </button>
         </div>
 
         <div className="glass-panel p-4 rounded-full shadow-sm">
@@ -474,6 +480,23 @@ export default function RecipesScreen() {
           recipe={recipe}
           onSave={handleEditRecipe}
           onClose={() => setShowEditModal(false)}
+        />
+      )}
+      {showCreateModal && (
+        <EditRecipeModal
+          recipe={{ title: "", serves: "", type: "Main", ingredients: [], method: "" }}
+          onSave={async (newRecipe) => {
+            await saveRecipe({
+              title: newRecipe.title,
+              serves: newRecipe.serves,
+              type: newRecipe.type,
+              ingredients: newRecipe.ingredients,
+              method: newRecipe.method,
+              sourceUrl: "",
+            });
+            setShowCreateModal(false);
+          }}
+          onClose={() => setShowCreateModal(false)}
         />
       )}
     </>
