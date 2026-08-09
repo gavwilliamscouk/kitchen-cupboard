@@ -26,7 +26,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <CategoriesProvider>
         <div className="flex flex-col h-full min-h-screen">
           {/* Desktop Header */}
-          <header className="hidden sm:flex justify-between items-center py-6 px-8 bg-transparent">
+          <header className="hidden sm:flex justify-between items-center py-6 px-8 bg-transparent relative z-[60]">
             <h1 className="text-3xl font-bold tracking-tight text-slate-100">KitchenCupboard</h1>
             <div className="flex items-center gap-6">
               <span className="text-sm font-medium text-slate-400">

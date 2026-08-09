@@ -30,7 +30,7 @@ function SaveRecipeModal({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 sm:pt-24 pb-28 bg-black/60 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-700/60 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-5 overflow-y-auto" style={{maxHeight: 'calc(100dvh - 8rem)'}}>
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-slate-100">Save to Collection</h3>
@@ -102,7 +102,7 @@ function AddIngredientsModal({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 sm:pt-24 pb-28 bg-black/60 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-700/60 rounded-2xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden" style={{maxHeight: 'calc(100dvh - 8rem)'}}>
         <div className="flex justify-between items-center p-6 pb-4 shrink-0">
           <h3 className="text-lg font-bold text-slate-100">Add Ingredients</h3>
@@ -170,7 +170,7 @@ function EditRecipeModal({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 pb-28 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-x-0 top-0 bottom-0 z-50 flex items-start justify-center px-4 pt-4 sm:pt-24 pb-28 bg-black/60 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-700/60 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-5 overflow-y-auto" style={{maxHeight: 'calc(100dvh - 8rem)'}}>
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-slate-100">{recipe.id ? "Edit Recipe" : "Add Recipe"}</h3>
