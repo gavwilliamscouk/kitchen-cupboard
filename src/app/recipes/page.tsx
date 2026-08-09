@@ -314,9 +314,9 @@ export default function RecipesScreen() {
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold tracking-tight text-slate-100">Recipes</h2>
           <button onClick={() => setShowCreateModal(true)}
-            className="btn bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60 rounded-full px-4 py-2 text-sm flex items-center gap-1.5 transition-all">
+            className="btn btn-primary rounded-full px-4 py-2 text-sm flex items-center gap-1.5 transition-all">
             <Plus size={16} />
-            <span className="font-medium">Recipe</span>
+            <span className="font-medium text-slate-900">Add Recipe</span>
           </button>
         </div>
 
