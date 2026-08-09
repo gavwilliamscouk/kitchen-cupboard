@@ -15,7 +15,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-0 right-0 z-50 px-4 sm:top-0 sm:bottom-auto sm:px-0 sm:left-auto sm:right-auto sm:w-full">
+    <nav className="fixed bottom-6 left-0 right-0 z-[60] px-4 sm:top-0 sm:bottom-auto sm:px-0 sm:left-auto sm:right-auto sm:w-full">
       <div className="glass-blur border-transparent mx-auto max-w-sm sm:max-w-4xl px-2 sm:px-6 py-2 sm:py-3 flex justify-around sm:justify-center sm:gap-12 items-center rounded-full sm:rounded-none sm:border-x-0 sm:border-t-0 shadow-float sm:shadow-none">
         {navItems.map((item) => {
           const isActive = pathname === item.path;

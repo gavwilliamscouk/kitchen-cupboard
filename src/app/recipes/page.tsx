@@ -150,6 +150,7 @@ function EditRecipeModal({
 }) {
   const [title, setTitle] = useState(recipe.title || "");
   const [serves, setServes] = useState(recipe.serves || "");
+  const [type, setType] = useState(recipe.type || "Main");
   const [ingredients, setIngredients] = useState(recipe.ingredients.join("\n"));
   const [method, setMethod] = useState(recipe.method || "");
   const [saving, setSaving] = useState(false);
@@ -161,6 +162,7 @@ function EditRecipeModal({
       ...recipe,
       title: title.trim(),
       serves: String(serves).trim(),
+      type: type,
       ingredients: ingredients.split("\n").map(i => i.trim()).filter(Boolean),
       method: method.trim(),
     });
@@ -182,6 +184,19 @@ function EditRecipeModal({
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Servings</label>
             <input type="text" value={serves} onChange={(e) => setServes(e.target.value)} className="input w-full rounded-xl" placeholder="e.g. 4" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Type</label>
+            <div className="flex flex-wrap gap-2">
+              {RECIPE_TYPE_ORDER.map((t) => (
+                <button key={t} onClick={(e) => { e.preventDefault(); setType(t); }}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                    type === t ? "bg-yellow-500 text-slate-900 border-yellow-500 font-bold" : "bg-slate-800 text-slate-300 border-slate-700/60 hover:border-slate-500"
+                  }`}>
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ingredients (one per line)</label>
@@ -283,6 +298,7 @@ export default function RecipesScreen() {
       await updateRecipe(updatedRecipe.id, {
         title: updatedRecipe.title,
         serves: updatedRecipe.serves,
+        type: updatedRecipe.type,
         ingredients: updatedRecipe.ingredients,
         method: updatedRecipe.method,
       });
