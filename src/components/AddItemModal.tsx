@@ -27,6 +27,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
   const [preferredSupermarket, setPreferredSupermarket] = useState("Any");
   const { categories, getCategoryEmoji } = useCategories();
   const { supermarkets } = useSupermarkets();
+  const [inShoppingList, setInShoppingList] = useState(defaultInShoppingList);
   
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,8 +47,9 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
       setCategory("");
       setVolumeQuantity("");
       setPreferredSupermarket("Any");
+      setInShoppingList(defaultInShoppingList);
     }
-  }, [itemToEdit, isOpen]);
+  }, [itemToEdit, isOpen, defaultInShoppingList]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -108,7 +110,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
         category: capitalizeWords(category.trim()) || "Uncategorised",
         volumeQuantity: volumeQuantity.trim(),
         preferredSupermarket: capitalizeWords(preferredSupermarket.trim()) || "Any",
-        inShoppingList: defaultInShoppingList,
+        inShoppingList: inShoppingList,
         lastUsedDate: Date.now(),
       });
     }
@@ -119,6 +121,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     setCategory("");
     setVolumeQuantity("");
     setPreferredSupermarket("Any");
+    setInShoppingList(defaultInShoppingList);
     onClose();
   };
 
@@ -256,6 +259,21 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
               </select>
             </div>
           </div>
+          
+          {!itemToEdit && (
+            <div className="flex items-center gap-3 mt-4">
+              <button 
+                type="button" 
+                onClick={() => setInShoppingList(!inShoppingList)} 
+                className={`w-11 h-6 rounded-full transition-colors relative ${inShoppingList ? 'bg-yellow-400' : 'bg-slate-700'}`}
+              >
+                <div className={`absolute top-1 bottom-1 w-4 rounded-full bg-white transition-all ${inShoppingList ? 'left-6' : 'left-1'}`} />
+              </button>
+              <label className="text-sm font-medium text-slate-300 cursor-pointer" onClick={() => setInShoppingList(!inShoppingList)}>
+                Also add to shopping list
+              </label>
+            </div>
+          )}
           
           <button type="submit" disabled={isSubmitting} className="btn btn-primary w-full py-3 mt-4">
             {isSubmitting ? (

@@ -23,6 +23,12 @@ export default function NavBar() {
             <Link
               key={item.name}
               href={item.path}
+              onClick={(e) => {
+                if (isActive && item.name === "Recipes") {
+                  e.preventDefault();
+                  window.location.href = item.path;
+                }
+              }}
               className={`flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-3 py-2 rounded-full transition-all duration-300 ${
                 isActive 
                   ? "text-yellow-400" 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useInventory, InventoryItem } from "@/lib/hooks/useInventory";
-import { CheckCircle2, Circle, Trash2, ChevronDown, Plus } from "lucide-react";
+import { CheckCircle2, Circle, Trash2, ChevronDown, Plus, Copy } from "lucide-react";
 import AddItemModal from "@/components/AddItemModal";
 import { useState, useEffect } from "react";
 import { CategoryIcon } from "@/lib/constants/categories";
@@ -156,6 +156,28 @@ export default function ShoppingListScreen() {
       </li>
     );
   };
+  const handleExportList = async () => {
+    let text = "";
+    Object.entries(supermarketGroupedData)
+      .sort(([storeA], [storeB]) => storeA.localeCompare(storeB))
+      .forEach(([storeName, categoriesMap]) => {
+        text += `${storeName.toUpperCase()}\n`;
+        Object.entries(categoriesMap)
+          .sort(([catA], [catB]) => getCategoryStoreIndex(catA, storeName, supermarketRoutes, getCategoryIndex) - getCategoryStoreIndex(catB, storeName, supermarketRoutes, getCategoryIndex))
+          .forEach(([_, categoryItems]) => {
+            categoryItems.forEach(item => {
+              text += `${item.volumeQuantity || "1"} ${item.name} ${item.subInfo || ""}`.trim() + "\n";
+            });
+          });
+      });
+    
+    try {
+      await navigator.clipboard.writeText(text.trim());
+      alert("List copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy list: ", err);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full space-y-8">
@@ -171,7 +193,7 @@ export default function ShoppingListScreen() {
           
           <div className="flex flex-col items-end gap-2">
             <button 
-              className="btn bg-transparent hover:bg-yellow-500/10 text-yellow-400 hover:text-yellow-300 border border-yellow-500/80 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0" 
+              className="btn bg-yellow-400 hover:bg-yellow-500 text-slate-900 border-none rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0" 
               onClick={() => {
                 setEditingItem(null);
                 setIsModalOpen(true);
@@ -383,6 +405,19 @@ export default function ShoppingListScreen() {
             })}
         </div>
       )}
+
+      {shoppingListItems.length > 0 && (
+        <div className="flex justify-center mt-6 mb-12">
+          <button 
+            onClick={handleExportList}
+            className="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl px-6 py-3 text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+          >
+            <Copy size={18} />
+            <span>Export (Copy) List</span>
+          </button>
+        </div>
+      )}
+
       <AddItemModal 
         isOpen={isModalOpen} 
         onClose={() => {

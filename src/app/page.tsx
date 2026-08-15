@@ -110,7 +110,7 @@ export default function InventoryScreen() {
         </div>
         <div className="flex items-center gap-2">
           <button 
-            className="btn bg-transparent hover:bg-yellow-500/10 text-yellow-400 hover:text-yellow-300 border border-yellow-500/80 rounded-xl px-4 py-2 text-sm font-semibold transition-all shadow-sm flex items-center gap-2" 
+            className="btn bg-yellow-400 hover:bg-yellow-500 text-slate-900 border-none rounded-xl px-4 py-2 text-sm font-semibold transition-all shadow-sm flex items-center gap-2" 
             onClick={handleOpenAddModal}
           >
             <Plus size={18} />
