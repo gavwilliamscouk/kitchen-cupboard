@@ -146,7 +146,7 @@ export default function ShoppingListScreen() {
             }`}>
               <span className="text-base sm:text-lg">{item.name}</span>
               {item.subInfo && (
-                <span className={`font-normal text-xs ${isChecked ? "text-slate-400/80 line-through" : "text-slate-300/90"}`}>
+                <span className={`font-normal text-sm ${isChecked ? "text-slate-400/80 line-through" : "text-slate-300/90"}`}>
                   {item.subInfo}
                 </span>
               )}
