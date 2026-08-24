@@ -17,9 +17,10 @@ export interface AddItemModalProps {
   itemToEdit?: any;
   onUpdate?: (id: string, updates: any) => Promise<void>;
   defaultInShoppingList?: boolean;
+  defaultCategory?: string;
 }
 
-export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpdate, defaultInShoppingList = false }: AddItemModalProps) {
+export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpdate, defaultInShoppingList = false, defaultCategory = "" }: AddItemModalProps) {
   const [name, setName] = useState("");
   const [subInfo, setSubInfo] = useState("");
   const [category, setCategory] = useState("");
@@ -28,6 +29,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
   const { categories, getCategoryEmoji } = useCategories();
   const { supermarkets } = useSupermarkets();
   const [inShoppingList, setInShoppingList] = useState(defaultInShoppingList);
+  const [inCupboard, setInCupboard] = useState(defaultInShoppingList ? false : true);
   
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,12 +46,13 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     } else {
       setName("");
       setSubInfo("");
-      setCategory("");
+      setCategory(defaultCategory);
       setVolumeQuantity("");
       setPreferredSupermarket("Any");
       setInShoppingList(defaultInShoppingList);
+      setInCupboard(defaultInShoppingList ? false : true);
     }
-  }, [itemToEdit, isOpen, defaultInShoppingList]);
+  }, [itemToEdit, isOpen, defaultInShoppingList, defaultCategory]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -111,6 +114,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
         volumeQuantity: volumeQuantity.trim(),
         preferredSupermarket: capitalizeWords(preferredSupermarket.trim()) || "Any",
         inShoppingList: inShoppingList,
+        inCupboard: inCupboard,
         lastUsedDate: Date.now(),
       });
     }
@@ -122,6 +126,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
     setVolumeQuantity("");
     setPreferredSupermarket("Any");
     setInShoppingList(defaultInShoppingList);
+    setInCupboard(defaultInShoppingList ? false : true);
     onClose();
   };
 
@@ -260,7 +265,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
             </div>
           </div>
           
-          {!itemToEdit && (
+          {!itemToEdit && !defaultInShoppingList && (
             <div className="flex items-center gap-3 mt-4">
               <button 
                 type="button" 
@@ -271,6 +276,20 @@ export default function AddItemModal({ isOpen, onClose, onAdd, itemToEdit, onUpd
               </button>
               <label className="text-sm font-medium text-slate-300 cursor-pointer" onClick={() => setInShoppingList(!inShoppingList)}>
                 Also add to shopping list
+              </label>
+            </div>
+          )}
+          {!itemToEdit && defaultInShoppingList && (
+            <div className="flex items-center gap-3 mt-4">
+              <button 
+                type="button" 
+                onClick={() => setInCupboard(!inCupboard)} 
+                className={`w-11 h-6 rounded-full transition-colors relative ${inCupboard ? 'bg-yellow-400' : 'bg-slate-700'}`}
+              >
+                <div className={`absolute top-1 bottom-1 w-4 rounded-full bg-white transition-all ${inCupboard ? 'left-6' : 'left-1'}`} />
+              </button>
+              <label className="text-sm font-medium text-slate-300 cursor-pointer" onClick={() => setInCupboard(!inCupboard)}>
+                Also add to cupboard
               </label>
             </div>
           )}

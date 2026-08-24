@@ -8,8 +8,8 @@ export default function NavBar() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Cupboard", path: "/", icon: Home },
-    { name: "List", path: "/shopping-list", icon: ShoppingCart },
+    { name: "List", path: "/", icon: ShoppingCart },
+    { name: "Cupboard", path: "/cupboard", icon: Home },
     { name: "Recipes", path: "/recipes", icon: BookOpen },
     { name: "Settings", path: "/settings", icon: Settings },
   ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, BookOpen, Circle, CheckCircle2, BookmarkPlus, ShoppingCart, X, ListPlus, ArrowLeft, Pencil, Plus } from "lucide-react";
 import { useInventory } from "@/lib/hooks/useInventory";
 import { useRecipeCollection, RECIPE_TYPE_ORDER } from "@/lib/hooks/useRecipeCollection";
@@ -221,9 +221,39 @@ export default function RecipesScreen() {
   const { savedRecipes, saveRecipe, updateRecipe } = useRecipeCollection();
   const [recipeUrl, setRecipeUrl] = useState("");
   const [isScraping, setIsScraping] = useState(false);
-  const [recipe, setRecipe] = useState(null);
+  const [recipe, setRecipe] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("ingredients");
-  const [checkedIngredients, setCheckedIngredients] = useState(new Set());
+  const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const storedRecipe = sessionStorage.getItem("recipes_current_recipe");
+    if (storedRecipe) {
+      try { setRecipe(JSON.parse(storedRecipe)); } catch(e) {}
+    }
+    const storedTab = sessionStorage.getItem("recipes_active_tab");
+    if (storedTab) setActiveTab(storedTab);
+    
+    const storedChecked = sessionStorage.getItem("recipes_checked_ingredients");
+    if (storedChecked) {
+      try { setCheckedIngredients(new Set(JSON.parse(storedChecked))); } catch(e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (recipe) {
+      sessionStorage.setItem("recipes_current_recipe", JSON.stringify(recipe));
+    } else {
+      sessionStorage.removeItem("recipes_current_recipe");
+    }
+  }, [recipe]);
+
+  useEffect(() => {
+    sessionStorage.setItem("recipes_active_tab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    sessionStorage.setItem("recipes_checked_ingredients", JSON.stringify(Array.from(checkedIngredients)));
+  }, [checkedIngredients]);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

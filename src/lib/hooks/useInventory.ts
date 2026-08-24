@@ -12,6 +12,7 @@ export interface InventoryItem {
   volumeQuantity: string;
   preferredSupermarket: string;
   inShoppingList: boolean;
+  inCupboard?: boolean;
   isChecked?: boolean;
   lastUsedDate: number;
   lastAddedToShoppingList?: number;
@@ -53,12 +54,18 @@ export function useInventory() {
   const addItem = async (item: Omit<InventoryItem, "id">) => {
     if (!householdId) return;
     const now = Date.now();
-    await addDoc(collection(db, "items"), {
+    const itemData = {
       ...item,
       householdId,
       isChecked: false,
       ...(item.inShoppingList ? { lastAddedToShoppingList: now } : {}),
-    });
+    };
+    if (item.inCupboard === false) {
+      itemData.inCupboard = false;
+    } else {
+      itemData.inCupboard = true;
+    }
+    await addDoc(collection(db, "items"), itemData);
   };
 
   const updateItem = async (id: string, data: Partial<InventoryItem>) => {
